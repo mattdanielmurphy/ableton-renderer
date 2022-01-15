@@ -1,18 +1,6 @@
 import { Ableton } from 'ableton-js'
 import { Track } from 'ableton-js/ns/track'
 import { exec } from 'child_process'
-import express from 'express'
-const app = express()
-const port = 3000
-
-app.listen(port, () => {
-	console.log(`Server listening at http://localhost:${port}`)
-})
-
-app.get('/done-render', (req, res) => {
-	renderNextSession()
-	res.send()
-})
 
 function pbcopy(data: string) {
 	var proc = require('child_process').spawn('pbcopy')
@@ -109,9 +97,10 @@ async function renderSession(
 	console.log(`opening session "${pathToAbletonSession}"`)
 
 	const abletonRunning = await isAbletonRunning()
-	console.log(dontOpen)
-	if (dontOpen === '--dont-open') restartMidiScript()
-	else exec(`open "${pathToAbletonSession}"`)
+	// console.log(dontOpen)
+	// if (dontOpen === '--dont-open') restartMidiScript()
+	// else
+	exec(`open "${pathToAbletonSession}"`)
 
 	cancelAllMacros()
 	await pause(1)
@@ -141,40 +130,11 @@ async function renderSession(
 }
 
 // ! < INITIALIZE VARIABLES FROM CLI ARGS >
-const [pathToMasterFolder, , , dontOpen] = process.argv.slice(2)
-const startComputer = Number(process.argv[3])
-const endComputer = Number(process.argv[4])
-
-if (!pathToMasterFolder || !startComputer || !endComputer)
-	console.log(
-		'Error! Some arguments were not found.\nUsage: "yd <pathToMasterFolder> <startComputer> <endComputer>"',
-	)
-
-let computer = Number(startComputer)
-let session = 1
+const [pathToAbletonSession] = process.argv.slice(2)
+const computer = Number(process.argv[3])
+const session = Number(process.argv[4])
 // ! </ INITIALIZE VARIABLES FROM CLI ARGS >
 
-export async function renderNextSession() {
-	const pathToAbletonSession =
-		pathToMasterFolder +
-		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE.als`
-
-	if (computer > endComputer) {
-		console.log(
-			`✔ Done rendering all sessions from computer ${startComputer} to ${endComputer}.`,
-		)
-	} else {
-		console.log('rendering next session...', computer, session)
-		renderSession(pathToAbletonSession, computer, session)
-	}
-
-	// ? Increment session for next time
-	if (session === 10) {
-		computer++
-		session = 0
-	} else session++
-}
-
-renderNextSession()
+renderSession(pathToAbletonSession, computer, session)
 
 // renderSession('/Volumes/Extreme SSD/GOFD Project Links/COMPUTER 3/GOFD 100 MASTER SESSION DONE.als', 3, 1 )
