@@ -5,9 +5,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "start": "tsnd dev/index.ts",
-    "dev": "tsnd dev/index.ts",
-    "dev-server": "tsnd dev/server.ts",
+    "dev": "tsnd dev/server.ts",
+    "start": "tsnd dev/server.ts",
     "render": "tsnd dev/render.ts",
     "build": "tsc"
   },
