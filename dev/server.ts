@@ -21,7 +21,7 @@ if (!pathToMasterFolder || !startComputer || !endComputer)
 	)
 
 let computer = Number(startComputer)
-let session = 3
+let session = 1
 // ! </ INITIALIZE VARIABLES FROM CLI ARGS >
 
 function renderNextSession() {
@@ -53,7 +53,7 @@ function renderNextSession() {
 	// // ? Increment session for next time
 	if (session === 10) {
 		computer++
-		session = 3
+		session = 1
 	} else session++
 	// ? Increment session for next time
 	// if (session === 2) {
