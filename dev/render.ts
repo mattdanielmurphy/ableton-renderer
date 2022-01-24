@@ -59,21 +59,25 @@ async function isAbletonRunning() {
 
 async function expandTracks(tracks: Track[]) {
 	console.log('folding and unfolding tracks')
-	const namesOfTracksToExpand = [
-		'All',
-		'7GOFD ALL FX (Nov29)',
-		'6FILTERS',
-		'4MELODIC',
-		// '3J37 MEL2',
-		// '3J37 Perc',
-		// '2Ambient',
-		// '2FILT DRUMS',
-	]
+	// const namesOfTracksToExpand = [
+	// 	'All',
+	// 	'7GOFD ALL FX (Nov29)',
+	// 	'6FILTERS',
+	// 	'4MELODIC',
+	// 	'Main Clips',
+	// 	// '3J37 MEL2',
+	// 	// '3J37 Perc',
+	// 	// '2Ambient',
+	// 	// '2FILT DRUMS',
+	// ]
 	for (const track of tracks) {
-		if (namesOfTracksToExpand.includes(track.raw.name)) {
-			console.log(track.raw.name)
+		try {
 			await track.set('fold_state', 0)
-		}
+		} catch (error) {}
+		// if (namesOfTracksToExpand.includes(track.raw.name)) {
+		// 	console.log('folding', track.raw.name)
+		// 	await track.set('fold_state', 0)
+		// }
 		// else await track.set('fold_state', 1) //? COMMENTED OUT b/c causes an error
 	}
 	console.log('done expanding')
@@ -81,7 +85,7 @@ async function expandTracks(tracks: Track[]) {
 
 function restartMidiScript() {
 	exec(
-		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "E53DD15E-91B1-404A-98EB-E1087F8CA7F7"'`,
+		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "ABLETON: RESTART MIDI SCRIPT"'`,
 		(err) => {
 			if (err) throw err
 		},
@@ -94,18 +98,29 @@ async function renderSession(
 	sessionNumber: number,
 ) {
 	const ableton = new Ableton()
-	console.log(`opening session "${pathToAbletonSession}"`)
 
 	const abletonRunning = await isAbletonRunning()
-	// console.log(dontOpen)
-	// if (dontOpen === '--dont-open') restartMidiScript()
-	// else
 	cancelAllMacros()
-	exec(`open "${pathToAbletonSession}"`)
-	if (!abletonRunning) await pause(8)
-	else {
-		await pause(1)
-		dontSavePrevSession()
+	await pause(2)
+
+	if (abletonRunning) {
+		console.log('ableton is running')
+		if (process.argv[5] === '--dont-open') {
+			console.log(`Using option --don\'t-open... refreshing midi script`)
+			restartMidiScript()
+		} else {
+			console.log(`opening session "${pathToAbletonSession}"`)
+			exec(`open "${pathToAbletonSession}"`)
+			console.log('waiting 10s…')
+			await pause(1)
+			dontSavePrevSession()
+			await pause(10)
+		}
+	} else {
+		console.log(`opening session "${pathToAbletonSession}"`)
+		exec(`open "${pathToAbletonSession}"`)
+		console.log('waiting 25s… (Ableton was not open)')
+		await pause(25)
 	}
 
 	ableton.on('connect', async () => {
@@ -124,7 +139,7 @@ async function renderSession(
 				break
 			}
 		}
-		console.log('executing resetView')
+		console.log('starting resetView macro (which runs the rest of the macros)')
 
 		resetView(computerNumber, sessionNumber)
 	})
@@ -137,5 +152,3 @@ const session = Number(process.argv[4])
 // ! </ INITIALIZE VARIABLES FROM CLI ARGS >
 
 renderSession(pathToAbletonSession, computer, session)
-
-// renderSession('/Volumes/Extreme SSD/GOFD Project Links/COMPUTER 3/GOFD 100 MASTER SESSION DONE.als', 3, 1 )

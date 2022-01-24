@@ -1,7 +1,7 @@
-import { exec } from 'child_process'
 import express from 'express'
 import fs from 'fs'
 import os from 'os'
+import { spawn } from 'child_process'
 const app = express()
 const port = 3000
 
@@ -10,7 +10,8 @@ app.listen(port, () => {
 })
 
 // ! < INITIALIZE VARIABLES FROM CLI ARGS >
-const [pathToMasterFolder] = process.argv.slice(2)
+console.log(process.argv)
+const [pathToMasterFolder, , , dontOpenFlag] = process.argv.slice(2)
 const startComputer = Number(process.argv[3])
 const endComputer = Number(process.argv[4])
 
@@ -35,9 +36,17 @@ function renderNextSession() {
 	} else {
 		console.log('rendering next session...', computer, session)
 		try {
-			exec(
-				`tsnd dev/render.ts "${pathToAbletonSession}" ${computer} ${session}`,
-			)
+			const child = spawn('tsnd', [
+				'dev/render.ts',
+				pathToAbletonSession,
+				String(computer),
+				String(session),
+				dontOpenFlag,
+			])
+			child.stdout.setEncoding('utf8')
+			child.stdout.on('data', (data) => console.log(data))
+			child.stderr.setEncoding('utf8')
+			child.stderr.on('data', (data) => console.log('ERR:', data))
 		} catch (err) {}
 	}
 
