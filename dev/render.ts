@@ -100,12 +100,13 @@ async function renderSession(
 	// console.log(dontOpen)
 	// if (dontOpen === '--dont-open') restartMidiScript()
 	// else
-	exec(`open "${pathToAbletonSession}"`)
-
 	cancelAllMacros()
-	await pause(1)
+	exec(`open "${pathToAbletonSession}"`)
 	if (!abletonRunning) await pause(8)
-	dontSavePrevSession()
+	else {
+		await pause(1)
+		dontSavePrevSession()
+	}
 
 	ableton.on('connect', async () => {
 		console.log('connected!')
