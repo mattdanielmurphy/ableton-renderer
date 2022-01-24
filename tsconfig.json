@@ -11,6 +11,6 @@
 		"forceConsistentCasingInFileNames": true,
 		"allowSyntheticDefaultImports": true
 	},
-	"include": ["./**/*.ts"],
+	"include": ["./dev/*.ts"],
 	"exclude": ["node_modules", "dev", "dist"]
 }

@@ -29,7 +29,7 @@ async function pause(seconds: number) {
 
 async function dontSavePrevSession() {
 	exec(
-		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "ABLETON: CLICK DONT SAVE"'`,
+		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "DD05E63C-694C-4E98-8B9E-AD3AA16B77FE"'`,
 		(err) => {
 			if (err) throw err
 		},
@@ -38,7 +38,7 @@ async function dontSavePrevSession() {
 
 async function cancelAllMacros() {
 	exec(
-		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "Cancel all macros"'`,
+		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "DD544012-DAC5-47E3-A194-7A930DD27F80"'`,
 		(err) => {
 			if (err) throw err
 		},

@@ -1,5 +1,7 @@
 import { exec } from 'child_process'
 import express from 'express'
+import fs from 'fs'
+import os from 'os'
 const app = express()
 const port = 3000
 
@@ -18,7 +20,7 @@ if (!pathToMasterFolder || !startComputer || !endComputer)
 	)
 
 let computer = Number(startComputer)
-let session = 1
+let session = 3
 // ! </ INITIALIZE VARIABLES FROM CLI ARGS >
 
 function renderNextSession() {
@@ -40,15 +42,15 @@ function renderNextSession() {
 	}
 
 	// // ? Increment session for next time
-	// if (session === 10) {
-	// 	computer++
-	// 	session = 0
-	// } else session++
-	// ? Increment session for next time
-	if (session === 2) {
+	if (session === 10) {
 		computer++
-		session = 1
+		session = 3
 	} else session++
+	// ? Increment session for next time
+	// if (session === 2) {
+	// 	computer++
+	// 	session = 1
+	// } else session++
 }
 
 app.get('/done-render', (req, res) => {
