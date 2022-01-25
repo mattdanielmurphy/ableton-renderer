@@ -10,7 +10,10 @@ app.listen(port, () => {
 })
 
 // ! < INITIALIZE VARIABLES FROM CLI ARGS >
-console.log(process.argv)
+const workingDir = process.env.PWD!
+const splitPwd = workingDir.split('-')
+const macRunningThis = splitPwd[splitPwd.length - 1]
+console.log('Mac running this =', macRunningThis)
 const [pathToMasterFolder, , , dontOpenFlag] = process.argv.slice(2)
 const startComputer = Number(process.argv[3])
 const endComputer = Number(process.argv[4])
@@ -41,6 +44,7 @@ function renderNextSession() {
 				pathToAbletonSession,
 				String(computer),
 				String(session),
+				macRunningThis,
 				dontOpenFlag,
 			])
 			child.stdout.setEncoding('utf8')

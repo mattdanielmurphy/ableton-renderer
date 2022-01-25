@@ -9,7 +9,8 @@ function pbcopy(data: string) {
 }
 
 async function resetView(computerNumber: number, sessionNumber: number) {
-	pbcopy(`${computerNumber}-${sessionNumber}`)
+	const macRunningThis = process.argv[5]
+	pbcopy(`${computerNumber}-${sessionNumber}-${macRunningThis}`)
 	console.log(
 		`computerNumber (${computerNumber}) and sessionNumber (${sessionNumber}) copied to clipboard`,
 	)
@@ -105,7 +106,7 @@ async function renderSession(
 
 	if (abletonRunning) {
 		console.log('ableton is running')
-		if (process.argv[5] === '--dont-open') {
+		if (process.argv[6] === '--dont-open') {
 			console.log(`Using option --don\'t-open... refreshing midi script`)
 			restartMidiScript()
 		} else {
