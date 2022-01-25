@@ -14,11 +14,24 @@ const workingDir = process.env.PWD!
 const splitPwd = workingDir.split('-')
 const macRunningThis = splitPwd[splitPwd.length - 1]
 console.log('Mac running this =', macRunningThis)
-const [pathToMasterFolder, , , dontOpenFlag] = process.argv.slice(2)
-const startComputer = Number(process.argv[3])
-const endComputer = Number(process.argv[4])
+const [pathToMasterFolder, pathToOutputFolder, , , dontOpenFlag] =
+	process.argv.slice(2)
+const startComputer = Number(process.argv[4])
+const endComputer = Number(process.argv[5])
 
-if (!pathToMasterFolder || !startComputer || !endComputer)
+console.log(`arguments provided:
+masterFolder: ${pathToMasterFolder}
+outputFolder: ${pathToOutputFolder}
+startComputer: ${startComputer}
+endComputer: ${endComputer}
+`)
+
+if (
+	!pathToMasterFolder ||
+	!startComputer ||
+	!endComputer ||
+	!pathToOutputFolder
+)
 	console.log(
 		'Error! Some arguments were not found.\nUsage: "yd <pathToMasterFolder> <startComputer> <endComputer>"',
 	)
@@ -42,6 +55,7 @@ function renderNextSession() {
 			const child = spawn('tsnd', [
 				'dev/render.ts',
 				pathToAbletonSession,
+				pathToOutputFolder,
 				String(computer),
 				String(session),
 				macRunningThis,
