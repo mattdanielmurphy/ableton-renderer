@@ -10,7 +10,8 @@ function pbcopy(data: string) {
 
 async function resetView(computerNumber: number, sessionNumber: number) {
 	const macRunningThis = process.argv[5]
-	pbcopy(`${computerNumber}-${sessionNumber}-${macRunningThis}`)
+	if (process.argv[5] === '--dont-open')
+		pbcopy(`${computerNumber}-${sessionNumber}-${macRunningThis}`)
 	console.log(
 		`computerNumber (${computerNumber}) and sessionNumber (${sessionNumber}) copied to clipboard`,
 	)
@@ -93,39 +94,15 @@ function restartMidiScript() {
 	)
 }
 
-async function renderSession(
-	pathToAbletonSession: string = process.argv[2],
+function onAbletonConnect(
+	dontOpen: boolean,
 	computerNumber: number,
 	sessionNumber: number,
 ) {
 	const ableton = new Ableton()
-
-	const abletonRunning = await isAbletonRunning()
-	cancelAllMacros()
-	await pause(2)
-
-	if (abletonRunning) {
-		console.log('ableton is running')
-		if (process.argv[6] === '--dont-open') {
-			console.log(`Using option --don\'t-open... refreshing midi script`)
-			restartMidiScript()
-		} else {
-			console.log(`opening session "${pathToAbletonSession}"`)
-			exec(`open "${pathToAbletonSession}"`)
-			console.log('waiting 10s…')
-			await pause(1)
-			dontSavePrevSession()
-			await pause(10)
-		}
-	} else {
-		console.log(`opening session "${pathToAbletonSession}"`)
-		exec(`open "${pathToAbletonSession}"`)
-		console.log('waiting 25s… (Ableton was not open)')
-		await pause(25)
-	}
-
 	ableton.on('connect', async () => {
-		console.log('connected!')
+		console.log('connected! waiting 15s for samples to finish loading')
+		if (!dontOpen) await pause(15)
 		console.log('disabling output track')
 		const tracks = await ableton.song.get('tracks')
 		await expandTracks(tracks)
@@ -141,9 +118,50 @@ async function renderSession(
 			}
 		}
 		console.log('starting resetView macro (which runs the rest of the macros)')
-
 		resetView(computerNumber, sessionNumber)
 	})
+}
+
+async function renderSession(
+	pathToAbletonSession: string = process.argv[2],
+	computerNumber: number,
+	sessionNumber: number,
+) {
+	const abletonRunning = await isAbletonRunning()
+	cancelAllMacros()
+	await pause(2)
+	const dontOpen = process.argv[6] === '--dont-open'
+
+	if (abletonRunning) {
+		console.log('ableton is running')
+		if (dontOpen) {
+			console.log(`Using option --don\'t-open... refreshing midi script`)
+			restartMidiScript()
+		} else {
+			console.log(`opening session "${pathToAbletonSession}"`)
+			exec(`open "${pathToAbletonSession}"`)
+			await pause(1)
+			dontSavePrevSession()
+		}
+	} else {
+		throw new Error('Open Ableton first')
+		// console.log(`opening session "${pathToAbletonSession}"`)
+		// exec(`open "${pathToAbletonSession}"`)
+		// console.log('waiting 15s… (Ableton was not open)')
+		// await pause(15)
+	}
+
+	try {
+		onAbletonConnect(dontOpen, computerNumber, sessionNumber)
+	} catch (error) {
+		if (error) {
+			console.log('got error onAbletonConnect, trying again in 5s')
+			setTimeout(
+				() => onAbletonConnect(dontOpen, computerNumber, sessionNumber),
+				5000,
+			)
+		}
+	}
 }
 
 // ! < INITIALIZE VARIABLES FROM CLI ARGS >
