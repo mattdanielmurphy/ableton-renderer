@@ -4,13 +4,15 @@ import { Ableton } from 'ableton-js'
 import { Track } from 'ableton-js/ns/track'
 import { exec } from 'child_process'
 
-async function runResetView() {
-	exec(
-		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "ABLETON: RESET VIEW & SELECT ALL"'`,
-		(err, stdout, stderr) => {
-			if (err) throw err
-		},
-	)
+function getArgs() {
+	const args = process.argv
+	return {
+		pathToAbletonSession: args[2],
+		outputDir: args[3],
+		computer: Number(args[4]),
+		session: Number(args[5]),
+		macRunningThis: args[6],
+	}
 }
 
 function copyVariablesToClipboard(
@@ -27,23 +29,26 @@ function copyVariablesToClipboard(
 	)
 }
 
-async function dontSavePrevSession() {
+async function runKeyboardMaestroMacro(
+	macroName: string,
+	callback?: () => void,
+) {
 	exec(
-		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "ABLETON: CLICK DONT SAVE"'`,
-		(err) => {
-			if (err) throw err
-		},
+		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "${macroName}"'`,
+		callback,
 	)
 }
 
-async function cancelAllMacros() {
-	exec(
-		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "Cancel all macros"'`,
-		(err) => {
-			if (err) throw err
-		},
-	)
+const runResetView = async () => {
+	runKeyboardMaestroMacro('ableton: reset view & select all')
 }
+const restartMidiScript = () =>
+	runKeyboardMaestroMacro('ableton: restart midi script')
+
+const dontSavePrevSession = () =>
+	runKeyboardMaestroMacro('ableton: click dont save')
+
+const cancelAllMacros = () => runKeyboardMaestroMacro('cancel all macros')
 
 async function isAbletonRunning() {
 	return await new Promise((resolve, reject) => {
@@ -74,15 +79,6 @@ async function deleteOutputTrack(tracks: Track[], ableton: Ableton) {
 			break
 		}
 	}
-}
-
-function restartMidiScript() {
-	exec(
-		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "ABLETON: RESTART MIDI SCRIPT"'`,
-		(err) => {
-			if (err) throw err
-		},
-	)
 }
 
 function onAbletonConnect(
@@ -120,10 +116,9 @@ function onAbletonConnect(
 }
 
 async function renderSession() {
-	const [pathToAbletonSession, outputDir] = process.argv.slice(2)
-	const computer = Number(process.argv[4])
-	const session = Number(process.argv[5])
-	const macRunningThis = process.argv[6]
+	const { pathToAbletonSession, outputDir, computer, session, macRunningThis } =
+		getArgs()
+
 	waitingToRenderSession = true
 	const abletonRunning = await isAbletonRunning()
 	cancelAllMacros()
