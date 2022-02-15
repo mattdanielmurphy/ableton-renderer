@@ -3,6 +3,7 @@ import { copyToClipboard, pause } from './utilities'
 import { Ableton } from 'ableton-js'
 import { Track } from 'ableton-js/ns/track'
 import { exec } from 'child_process'
+import fs from 'fs'
 
 function getArgs() {
 	const args = process.argv
@@ -124,7 +125,15 @@ async function renderSession() {
 	cancelAllMacros()
 	await pause(2)
 
-	if (!abletonRunning) throw new Error('Open Ableton first')
+	if (!abletonRunning) {
+		console.log('Opening ableton first (and waiting 20s)...')
+
+		if (fs.existsSync('/Applications/Ableton Live 11 Suite.app'))
+			exec('open "/Applications/Ableton Live 11 Suite.app"')
+		else exec('open "/Applications/Ableton Live 11 Standard.app"')
+
+		await pause(20)
+	}
 	console.log(`opening session "${pathToAbletonSession}"`)
 	exec(`open "${pathToAbletonSession}"`)
 	await pause(1)
