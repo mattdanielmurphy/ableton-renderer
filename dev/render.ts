@@ -86,7 +86,6 @@ function restartMidiScript() {
 }
 
 function onAbletonConnect(
-	dontOpen: boolean,
 	computerNumber: number,
 	sessionNumber: number,
 	macRunningThis: string,
@@ -112,78 +111,25 @@ function onAbletonConnect(
 	})
 }
 
-async function renderSession(
-	pathToAbletonSession: string = process.argv[2],
-	macRunningThis: string,
-	outputDir: string,
-	computerNumber: number,
-	sessionNumber: number,
-) {
+async function renderSession() {
+	const [pathToAbletonSession, outputDir] = process.argv.slice(2)
+	const computer = Number(process.argv[4])
+	const session = Number(process.argv[5])
+	const macRunningThis = process.argv[6]
 	waitingToRenderSession = true
 	const abletonRunning = await isAbletonRunning()
 	cancelAllMacros()
 	await pause(2)
-	const dontOpen = process.argv[6] === '--dont-open'
 
-	if (abletonRunning) {
-		if (dontOpen) {
-			console.log(`Using option --don\'t-open... refreshing midi script`)
-			restartMidiScript()
-		} else {
-			console.log(`opening session "${pathToAbletonSession}"`)
-			exec(`open "${pathToAbletonSession}"`)
-			await pause(1)
-			dontSavePrevSession()
-		}
-	} else {
-		throw new Error('Open Ableton first')
-	}
+	if (!abletonRunning) throw new Error('Open Ableton first')
+	console.log(`opening session "${pathToAbletonSession}"`)
+	exec(`open "${pathToAbletonSession}"`)
+	await pause(1)
+	dontSavePrevSession()
 
-	// try {
-	onAbletonConnect(
-		dontOpen,
-		computerNumber,
-		sessionNumber,
-		macRunningThis,
-		outputDir,
-	)
-	// } catch (error) {
-	// 	if (error) {
-	// 		console.log('got error onAbletonConnect, trying again in 5s')
-	// 		setTimeout(
-	// 			() =>
-	// 				onAbletonConnect(
-	// 					dontOpen,
-	// 					computerNumber,
-	// 					sessionNumber,
-	// 					macRunningThis,
-	// 					outputDir,
-	// 				),
-	// 			5000,
-	// 		)
-	// 	}
-	// }
+	onAbletonConnect(computer, session, macRunningThis, outputDir)
 }
-
-// ! < INITIALIZE VARIABLES FROM CLI ARGS >
-const [pathToAbletonSession, outputDir] = process.argv.slice(2)
-const computer = Number(process.argv[4])
-const session = Number(process.argv[5])
-const macRunningThis = process.argv[6]
-// ! </ INITIALIZE VARIABLES FROM CLI ARGS >
-
-console.log(`cli vars:
-
-computer = ${computer}
-session = ${session}
-macRunningThis = ${macRunningThis}`)
 
 let waitingToRenderSession = false
 
-renderSession(
-	pathToAbletonSession,
-	macRunningThis,
-	outputDir,
-	computer,
-	session,
-)
+renderSession()
