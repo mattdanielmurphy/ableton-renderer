@@ -40,16 +40,21 @@ async function runKeyboardMaestroMacro(
 	)
 }
 
-const runResetView = async () => {
+function runResetView() {
 	runKeyboardMaestroMacro('ableton: reset view & select all')
 }
-const restartMidiScript = () =>
+function runSetNewVolume() {
+	runKeyboardMaestroMacro('4: SET NEW VOLUME') //? for re-rendering from saved 17-bar file
+}
+function restartMidiScript() {
 	runKeyboardMaestroMacro('ableton: restart midi script')
-
-const dontSavePrevSession = () =>
+}
+function dontSavePrevSession() {
 	runKeyboardMaestroMacro('ableton: click dont save')
-
-const cancelAllMacros = () => runKeyboardMaestroMacro('cancel all macros')
+}
+function cancelAllMacros() {
+	runKeyboardMaestroMacro('cancel all macros')
+}
 
 async function isAbletonRunning() {
 	return await new Promise((resolve, reject) => {
