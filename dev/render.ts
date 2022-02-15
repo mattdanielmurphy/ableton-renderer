@@ -4,26 +4,26 @@ import { Ableton } from 'ableton-js'
 import { Track } from 'ableton-js/ns/track'
 import { exec } from 'child_process'
 
-async function runResetViewAfter15s(
-	computerNumber: number,
-	sessionNumber: number,
-	macRunningThis: string,
-	outputDir: string,
-) {
-	waitingToRenderSession = false
-	copyToClipboard(
-		`${computerNumber}-${sessionNumber}-${macRunningThis}-${outputDir}`,
-	)
-	console.log(
-		`computerNumber (${computerNumber}) and sessionNumber (${sessionNumber}) copied to clipboard`,
-	)
-	console.log('running resetView after 15s')
-	await pause(15)
+async function runResetView() {
 	exec(
 		`osascript -e 'tell application "Keyboard Maestro Engine" to do script "ABLETON: RESET VIEW & SELECT ALL"'`,
 		(err, stdout, stderr) => {
 			if (err) throw err
 		},
+	)
+}
+
+function copyVariablesToClipboard(
+	computerNumber: number,
+	sessionNumber: number,
+	macRunningThis: string,
+	outputDir: string,
+) {
+	copyToClipboard(
+		`${computerNumber}-${sessionNumber}-${macRunningThis}-${outputDir}`,
+	)
+	console.log(
+		`computerNumber (${computerNumber}) and sessionNumber (${sessionNumber}) copied to clipboard`,
 	)
 }
 
@@ -95,16 +95,24 @@ function onAbletonConnect(
 	ableton.on('error', (err) => {})
 	ableton.on('connect', async () => {
 		if (waitingToRenderSession) {
-			runResetViewAfter15s(
+			copyVariablesToClipboard(
 				computerNumber,
 				sessionNumber,
 				macRunningThis,
 				outputDir,
 			)
+
+			console.log('running resetView after 15s')
+			await pause(15)
+			waitingToRenderSession = false
+			runResetView()
+
 			console.log('pausing so ableton.js doesnt fail...')
 			await pause(5)
+
 			const tracks = await ableton.song.get('tracks')
 			await expandAllTracks(tracks)
+
 			console.log('deleting output track')
 			await deleteOutputTrack(tracks, ableton)
 		}
