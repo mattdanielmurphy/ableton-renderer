@@ -14,7 +14,7 @@ const workingDir = process.env.PWD!
 const splitPwd = workingDir.split('-')
 const macRunningThis = splitPwd[splitPwd.length - 1]
 console.log('Mac running this =', macRunningThis)
-const [pathToMasterFolder, pathToOutputFolder, , , dontOpenFlag] =
+const [pathToMasterFolder, pathToOutputFolder, , , rerenderString] =
 	process.argv.slice(2)
 const startComputer = Number(process.argv[4])
 const endComputer = Number(process.argv[5])
@@ -59,7 +59,7 @@ function renderNextSession() {
 				String(computer),
 				String(session),
 				macRunningThis,
-				dontOpenFlag,
+				rerenderString,
 			])
 			child.stdout.setEncoding('utf8')
 			child.stdout.on('data', (data) => console.log(data))

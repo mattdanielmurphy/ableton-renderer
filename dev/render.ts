@@ -13,6 +13,7 @@ function getArgs() {
 		computer: Number(args[4]),
 		session: Number(args[5]),
 		macRunningThis: args[6],
+		rerenderMode: args[7] === 'rerender',
 	}
 }
 
@@ -92,6 +93,7 @@ function onAbletonConnect(
 	sessionNumber: number,
 	macRunningThis: string,
 	outputDir: string,
+	rerenderMode: boolean,
 ) {
 	const ableton = new Ableton()
 	ableton.on('error', (err) => {})
@@ -107,23 +109,32 @@ function onAbletonConnect(
 			console.log('running resetView after 15s')
 			await pause(15)
 			waitingToRenderSession = false
-			runResetView()
+			if (rerenderMode) runSetNewVolume()
+			else {
+				runResetView()
 
-			console.log('pausing so ableton.js doesnt fail...')
-			await pause(5)
+				console.log('pausing so ableton.js doesnt fail...')
+				await pause(5)
 
-			const tracks = await ableton.song.get('tracks')
-			await expandAllTracks(tracks)
+				const tracks = await ableton.song.get('tracks')
+				await expandAllTracks(tracks)
 
-			console.log('deleting output track')
-			await deleteOutputTrack(tracks, ableton)
+				console.log('deleting output track')
+				await deleteOutputTrack(tracks, ableton)
+			}
 		}
 	})
 }
 
 async function renderSession() {
-	const { pathToAbletonSession, outputDir, computer, session, macRunningThis } =
-		getArgs()
+	const {
+		pathToAbletonSession,
+		outputDir,
+		computer,
+		session,
+		macRunningThis,
+		rerenderMode,
+	} = getArgs()
 
 	waitingToRenderSession = true
 	const abletonRunning = await isAbletonRunning()
@@ -144,7 +155,7 @@ async function renderSession() {
 	await pause(1)
 	dontSavePrevSession()
 
-	onAbletonConnect(computer, session, macRunningThis, outputDir)
+	onAbletonConnect(computer, session, macRunningThis, outputDir, rerenderMode)
 }
 
 let waitingToRenderSession = false
