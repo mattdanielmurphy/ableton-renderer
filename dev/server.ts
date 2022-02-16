@@ -35,9 +35,9 @@ endComputer: ${endComputer}
 
 if (
 	!pathToMasterFolder ||
-	!pathToOutputFolder || 
+	!pathToOutputFolder ||
 	!startComputer ||
-	!endComputer ||
+	!endComputer
 )
 	console.log(
 		'Error! Some arguments were not found.\nUsage: "yarn dev <pathToMasterFolder> <pathToOutputFolder> <startComputer> <endComputer> <startSession> <endSession> [rerenderString]"',
