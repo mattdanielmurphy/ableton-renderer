@@ -14,8 +14,14 @@ const workingDir = process.env.PWD!
 const splitPwd = workingDir.split('-')
 const macRunningThis = splitPwd[splitPwd.length - 1]
 console.log('Mac running this =', macRunningThis)
-const [pathToMasterFolder, pathToOutputFolder, , , dontOpenFlag] =
-	process.argv.slice(2)
+const [
+	pathToMasterFolder,
+	pathToOutputFolder,
+	,
+	,
+	startSession,
+	rerenderString,
+] = process.argv.slice(2)
 const startComputer = Number(process.argv[4])
 const endComputer = Number(process.argv[5])
 
@@ -33,17 +39,20 @@ if (
 	!pathToOutputFolder
 )
 	console.log(
-		'Error! Some arguments were not found.\nUsage: "yd <pathToMasterFolder> <startComputer> <endComputer>"',
+		'Error! Some arguments were not found.\nUsage: "yarn dev <pathToMasterFolder> <pathToOutputFolder> <startComputer> <endComputer> <endSession> <startSession>"',
 	)
 
 let computer = Number(startComputer)
-let session = 1
+let session = Number(startSession || 1)
 // ! </ INITIALIZE VARIABLES FROM CLI ARGS >
 
 function renderNextSession() {
 	const pathToAbletonSession =
 		pathToMasterFolder +
-		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE.als`
+		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE` +
+		rerenderString
+			? '17-bar fix for ending pitch error.als'
+			: '.als'
 
 	if (computer > endComputer) {
 		console.log(
@@ -59,7 +68,7 @@ function renderNextSession() {
 				String(computer),
 				String(session),
 				macRunningThis,
-				dontOpenFlag,
+				rerenderString,
 			])
 			child.stdout.setEncoding('utf8')
 			child.stdout.on('data', (data) => console.log(data))

@@ -14,7 +14,7 @@ const workingDir = process.env.PWD!
 const splitPwd = workingDir.split('-')
 const macRunningThis = splitPwd[splitPwd.length - 1]
 console.log('Mac running this =', macRunningThis)
-const [pathToMasterFolder, pathToOutputFolder, , , rerenderString] =
+const [pathToMasterFolder, pathToOutputFolder, , , dontOpenFlag] =
 	process.argv.slice(2)
 const startComputer = Number(process.argv[4])
 const endComputer = Number(process.argv[5])
@@ -43,7 +43,7 @@ let session = 1
 function renderNextSession() {
 	const pathToAbletonSession =
 		pathToMasterFolder +
-		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE 17-bar fix for ending pitch error.als`
+		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE.als`
 
 	if (computer > endComputer) {
 		console.log(
@@ -59,7 +59,7 @@ function renderNextSession() {
 				String(computer),
 				String(session),
 				macRunningThis,
-				rerenderString,
+				dontOpenFlag,
 			])
 			child.stdout.setEncoding('utf8')
 			child.stdout.on('data', (data) => console.log(data))
