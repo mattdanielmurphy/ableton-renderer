@@ -1,6 +1,7 @@
 import express from 'express'
 import fs from 'fs'
 import os from 'os'
+import path from 'path'
 import { spawn } from 'child_process'
 const app = express()
 const port = 3000
@@ -48,12 +49,11 @@ let session = Number(startSession || 1)
 // ! </ INITIALIZE VARIABLES FROM CLI ARGS >
 
 function renderNextSession() {
-	const pathToAbletonSession =
-		pathToMasterFolder +
-		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE` +
-		rerenderString
-			? '17-bar fix for ending pitch error.als'
-			: '.als'
+	const pathToAbletonSession = path.join(
+		pathToMasterFolder,
+		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE`,
+		rerenderString ? '17-bar fix for ending pitch error.als' : '.als',
+	)
 
 	if (computer > endComputer) {
 		console.log(
