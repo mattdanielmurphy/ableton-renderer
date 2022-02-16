@@ -20,6 +20,7 @@ const [
 	,
 	,
 	startSession,
+	endSession,
 	rerenderString,
 ] = process.argv.slice(2)
 const startComputer = Number(process.argv[4])
@@ -34,12 +35,12 @@ endComputer: ${endComputer}
 
 if (
 	!pathToMasterFolder ||
+	!pathToOutputFolder || 
 	!startComputer ||
 	!endComputer ||
-	!pathToOutputFolder
 )
 	console.log(
-		'Error! Some arguments were not found.\nUsage: "yarn dev <pathToMasterFolder> <pathToOutputFolder> <startComputer> <endComputer> <endSession> <startSession>"',
+		'Error! Some arguments were not found.\nUsage: "yarn dev <pathToMasterFolder> <pathToOutputFolder> <startComputer> <endComputer> <startSession> <endSession> [rerenderString]"',
 	)
 
 let computer = Number(startComputer)
@@ -78,7 +79,7 @@ function renderNextSession() {
 	}
 
 	// // ? Increment session for next time
-	if (session === 10) {
+	if (session === Number(endSession || 10)) {
 		computer++
 		session = 1
 	} else session++
