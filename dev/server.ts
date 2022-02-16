@@ -51,8 +51,10 @@ let session = Number(startSession || 1)
 function renderNextSession() {
 	const pathToAbletonSession = path.join(
 		pathToMasterFolder,
-		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE`,
-		rerenderString ? '17-bar fix for ending pitch error.als' : '.als',
+		`/COMPUTER ${computer}/GOFD ${session}00 MASTER SESSION DONE` +
+			rerenderString
+			? ' 17-bar fix for ending pitch error.als'
+			: '.als',
 	)
 
 	if (computer > endComputer) {
